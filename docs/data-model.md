@@ -17,7 +17,7 @@ interface ExpressStation {
 }
 ```
 
-初始数据（花江校区 4 站点 + 实拍照片 `public/stations/*.jpg`）的坐标
+初始数据（花江校区 5 站点 + 实拍照片 `public/stations/*.jpg`）的坐标
 **已于 2026-11-07 现场校准**（编辑器拾取 → 导出 JSON 回写）。
 后续新增站点直接重复 §3 流程即可。
 

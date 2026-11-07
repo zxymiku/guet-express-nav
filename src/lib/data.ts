@@ -28,7 +28,7 @@ export interface ExpressStation {
 }
 
 /** 校区中心（地图初始视野）——花江站点群几何中心，GCJ-02 */
-export const CAMPUS_CENTER = { lng: 110.4159, lat: 25.3144 }
+export const CAMPUS_CENTER = { lng: 110.415353, lat: 25.312589 }
 /** 校区名称 */
 export const CAMPUS_NAME = '花江校区'
 export const CAMPUS_NAME_EN = 'GUET HUAJIANG CAMPUS'
@@ -94,14 +94,20 @@ export const STATIONS: ExpressStation[] = [
     campus: CAMPUS_NAME,
     lng: 110.418241,
     lat: 25.320931,
-    images: [
-      '/stations/20261107-170115.jpg',
-      '/stations/qq-20261107-195749.jpg',
-      '/stations/qq-20261107-195819.jpg',
-    ],
+    images: ['/stations/20261107-170115.jpg'],
     businessHours: '10:00 – 20:00',
     description:
       '后街沿线的集中取包点，多品牌包裹摊位与货架分发；位置与人流随季节调整，以现场为准。',
+  },
+  {
+    id: 'west-pickup',
+    name: '西区快递代收点',
+    brand: '多品牌代收',
+    brandEn: 'MULTI-BRAND PICKUP',
+    campus: CAMPUS_NAME,
+    lng: 110.413102,
+    lat: 25.305298,
+    images: ['/stations/qq-20261107-195819.jpg', '/stations/qq-20261107-195749.jpg'],
   },
 ]
 

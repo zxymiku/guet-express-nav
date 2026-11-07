@@ -97,4 +97,4 @@ guet-express-nav/
 - [x] 高德 Key / jscode 已注入（Web 经 Cloudflare Secrets 运行时下发；Android 经 GitHub Secrets 构建期注入）
       —— 真实暗色底图、路线规划、POI 均已在线上验证
 - [x] Android 云端签名构建 → Release 自动发布 APK（本地零 Gradle）
-- [x] 站点坐标校准：2026-11-07 已按现场拾取结果回写（后街多多驿站含 3 张实拍）
+- [x] 站点坐标校准：2026-11-07 已按现场拾取结果回写（5 站点；西区快递代收点含 2 张实拍）
