@@ -2,7 +2,7 @@ import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { Mode } from '../lib/mode'
 import { FRIEND_LINK, CAMPUS_NAME_EN } from '../lib/data'
 import { openExternal } from '../lib/native'
-import { IconList, IconLocate, IconPick, IconEdit } from './icons'
+import { IconList, IconLocate, IconPick, IconEdit, IconHelp, IconLink } from './icons'
 
 interface Props {
   panelOpen: boolean
@@ -11,9 +11,10 @@ interface Props {
   onLocate: () => void
   onPick: () => void
   onEdit: () => void
+  onGuide: () => void
 }
 
-export function SideRail({ panelOpen, mode, onToggleIndex, onLocate, onPick, onEdit }: Props) {
+export function SideRail({ panelOpen, mode, onToggleIndex, onLocate, onPick, onEdit, onGuide }: Props) {
   const friend = (ev: ReactMouseEvent) => {
     ev.preventDefault()
     void openExternal(FRIEND_LINK.url)
@@ -60,6 +61,15 @@ export function SideRail({ panelOpen, mode, onToggleIndex, onLocate, onPick, onE
         >
           <IconEdit />
         </button>
+        <button
+          type="button"
+          className="ark-rail-btn"
+          aria-label="使用指南"
+          title="使用指南"
+          onClick={onGuide}
+        >
+          <IconHelp />
+        </button>
       </div>
 
       <a
@@ -68,9 +78,11 @@ export function SideRail({ panelOpen, mode, onToggleIndex, onLocate, onPick, onE
         target="_blank"
         rel="noreferrer"
         aria-label={`友链：${FRIEND_LINK.name}（新窗口打开）`}
+        title={`友链：${FRIEND_LINK.name}`}
         onClick={friend}
       >
-        {FRIEND_LINK.name}
+        <IconLink className="ark-rail__friend-icon" />
+        <span className="ark-rail__friend-text">{FRIEND_LINK.name}</span>
       </a>
 
       <span className="ark-kicker" style={{ writingMode: 'vertical-rl', fontSize: 8, letterSpacing: '0.3em' }} aria-hidden="true">

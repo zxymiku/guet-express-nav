@@ -22,6 +22,7 @@ import { DetailPanel } from './components/DetailPanel'
 import { EditorPanel } from './components/EditorPanel'
 import { RouteDossier } from './components/RouteDossier'
 import { ConfigAlert } from './components/ConfigAlert'
+import { Onboarding } from './components/Onboarding'
 
 function useIsMobile(): boolean {
   const [m, setM] = useState(() => window.matchMedia('(max-width: 880px)').matches)
@@ -86,8 +87,25 @@ export default function App() {
   const [cursor, setCursor] = useState<LatLng | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [now, setNow] = useState(() => new Date())
+  /** 使用指南：null = 关闭；数字 = 当前步骤索引 */
+  const [guideStep, setGuideStep] = useState<number | null>(null)
 
   const isMobile = useIsMobile()
+
+  /* ---- 首次访问自动播放指南；?guide=1 可重放 ---- */
+  useEffect(() => {
+    const forced = new URLSearchParams(window.location.search).has('guide')
+    if (forced || !window.localStorage.getItem('guet-nav-guide-v1')) {
+      setGuideStep(0)
+    }
+  }, [])
+
+  const closeGuide = useCallback(() => {
+    setGuideStep(null)
+    window.localStorage.setItem('guet-nav-guide-v1', '1')
+  }, [])
+
+  const openGuide = useCallback(() => setGuideStep(0), [])
 
   /* ---- 时钟 ---- */
   useEffect(() => {
@@ -379,6 +397,7 @@ export default function App() {
     onLocate: () => void useLocationAsOrigin(),
     onPick: () => applyMode(mode === 'pick' ? 'browse' : 'pick'),
     onEdit: () => applyMode(mode === 'edit' ? 'browse' : 'edit'),
+    onGuide: openGuide,
   }
 
   return (
@@ -511,6 +530,8 @@ export default function App() {
           {toast}
         </div>
       )}
+
+      {guideStep != null && <Onboarding mobile={isMobile} onDone={closeGuide} />}
 
       {/* 屏幕阅读器用的模式说明 */}
       <p className="ark-kicker" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)' }}>

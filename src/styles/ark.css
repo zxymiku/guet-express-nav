@@ -143,8 +143,10 @@
   width: 42px;
   min-height: 96px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   border: 1px solid var(--ark-line);
   color: var(--ark-muted);
   font-size: 12px;
@@ -156,6 +158,7 @@
     border-color var(--ark-motion-direct) var(--ark-ease);
 }
 .ark-rail__friend:hover { color: var(--ark-signal); border-color: var(--ark-line-signal); }
+.ark-rail__friend-icon { width: 16px; height: 16px; }
 
 /* ---- 1.3 舞台 ---- */
 .ark-stage {
@@ -808,6 +811,7 @@
   .ark-topbar {
     padding: 0 12px;
     gap: 10px;
+    padding-top: env(safe-area-inset-top, 0px);
   }
   .ark-mark { width: 30px; height: 30px; font-size: 14px; }
   .ark-brand__name { font-size: 15px; }
@@ -835,12 +839,14 @@
   }
   .ark-rail__friend {
     writing-mode: horizontal-tb;
+    flex-direction: row;
     min-height: 44px;
-    width: 70px;
+    width: 44px;
     font-size: 10.5px;
     letter-spacing: 0.06em;
     white-space: nowrap;
   }
+  .ark-rail__friend-text { display: none; } /* 移动端仅图标，防底条溢出 */
   .ark-stage { grid-column: 1; grid-row: 2; }
   .ark-rail > .ark-kicker { display: none; }
 
@@ -866,13 +872,42 @@
   .ark-panel__head { padding: 14px 16px 10px; }
   .ark-panel__bignum { font-size: 40px; }
 
-  .ark-route {
-    bottom: 66px;
-    width: calc(100% - 20px);
+  /* ---- 仪表重排：左下坐标仪 / 右下缩放列 / 路线档案避让 ---- */
+  .ark-zoom-stack {
+    top: auto;
+    right: 10px;
+    bottom: 92px;
+    flex-direction: column;
   }
-  .ark-zoom-stack { top: auto; bottom: 12px; right: 12px; flex-direction: row; }
-  .ark-coord-hud { bottom: 12px; left: 12px; transform: scale(0.94); transform-origin: bottom left; }
+  .ark-coord-hud {
+    left: 10px;
+    bottom: 36px; /* 避开高德 logo */
+    padding: 6px 10px;
+    gap: 10px;
+  }
+  .ark-coord-hud__v { font-size: 11px; min-width: 60px; }
+  .ark-coord-hud__k { font-size: 8px; }
+  .ark-route {
+    left: 10px;
+    right: 70px; /* 给右下缩放列让位 */
+    bottom: 92px;
+    width: auto;
+    transform: none;
+  }
+  .ark-route__v { font-size: 17px; }
   .ark-pick-hint { top: 10px; width: calc(100% - 24px); justify-content: center; }
+
+  /* Toast 置顶显示（fixed），避开底部仪表与操作条 */
+  .ark-toast {
+    top: 62px;
+    bottom: auto;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  /* iOS：输入字号 <16px 会触发聚焦自动放大 */
+  .ark-input { font-size: 16px; }
 }
 
 @keyframes ark-slide-up {
@@ -910,7 +945,95 @@
 }
 
 /* ============================================================
-   9. AMAP OVERRIDES — 底图保持中性近黑
+   9. GUIDE — 使用指南（遮罩挖洞 + 步进卡片）
+   ============================================================ */
+
+.ark-guide { position: fixed; inset: 0; z-index: var(--z-guide); }
+
+/* 挖洞高亮：box-shadow 外扩遮罩，目标区域透出 */
+.ark-guide__hole {
+  position: fixed;
+  box-shadow: 0 0 0 9999px rgba(4, 5, 6, 0.78);
+  border: 1px solid var(--ark-signal);
+  pointer-events: none;
+  transition:
+    left 0.42s var(--ark-ease),
+    top 0.42s var(--ark-ease),
+    width 0.42s var(--ark-ease),
+    height 0.42s var(--ark-ease);
+}
+.ark-guide__hole::before,
+.ark-guide__hole::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+.ark-guide__hole::before {
+  left: -1px; top: -1px;
+  border-top: 2px solid var(--ark-signal);
+  border-left: 2px solid var(--ark-signal);
+}
+.ark-guide__hole::after {
+  right: -1px; bottom: -1px;
+  border-bottom: 2px solid var(--ark-signal);
+  border-right: 2px solid var(--ark-signal);
+}
+
+.ark-guide__card {
+  position: fixed;
+  background: var(--ark-panel-raised);
+  border: 1px solid var(--ark-line-strong);
+  border-left: 2px solid var(--ark-signal);
+  clip-path: var(--ark-cut-tr);
+  padding: 13px 16px 14px;
+  animation: ark-reveal-y 0.42s var(--ark-ease-out) both;
+}
+.ark-guide__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ark-guide__kicker {
+  font-family: var(--ark-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  color: var(--ark-signal);
+  text-transform: uppercase;
+}
+.ark-guide__close {
+  color: var(--ark-muted);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+}
+.ark-guide__close:hover { color: var(--ark-paper); }
+.ark-guide__title {
+  margin: 8px 0 5px;
+  font-family: var(--ark-font-cjk);
+  font-weight: 700;
+  font-size: 16.5px;
+  letter-spacing: 0.03em;
+}
+.ark-guide__body {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: rgba(244, 246, 246, 0.8);
+}
+.ark-guide__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 13px;
+}
+.ark-guide__actions .ark-btn { min-height: 36px; flex: 1; }
+.ark-guide__skip { flex: 0 0 auto; }
+
+/* ============================================================
+   10. AMAP OVERRIDES — 底图保持中性近黑
    ============================================================ */
 
 .amap-logo, .amap-copyright { opacity: 0.55; }

@@ -115,3 +115,11 @@ export const IconTarget = (p: P) => (
     <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
   </svg>
 )
+
+export const IconHelp = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="4" y="4" width="16" height="16" />
+    <path d="M9.6 9.2a2.4 2.4 0 1 1 3.4 2.6c-.7.4-1 .8-1 1.7" />
+    <path d="M12 16.4v.2" strokeWidth={2.2} />
+  </svg>
+)

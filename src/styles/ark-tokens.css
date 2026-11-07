@@ -60,6 +60,7 @@
   --z-panel: 20;
   --z-dossier: 30;
   --z-topbar: 40;
+  --z-guide: 55;               /* 指南在配置提示之下，关闭提示后完整可见 */
   --z-alert: 60;
 
   --ark-cut-tr: polygon(0 0, calc(100% - var(--ark-cut)) 0, 100% var(--ark-cut), 100% 100%, 0 100%);
