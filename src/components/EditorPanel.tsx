@@ -1,6 +1,6 @@
 import type { ExpressStation } from '../lib/data'
 import { formatCoord } from '../lib/data'
-import { IconPick, IconCopy, IconTarget, IconEdit } from './icons'
+import { IconBack, IconPick, IconCopy, IconTarget, IconEdit } from './icons'
 
 interface Props {
   draft: ExpressStation
@@ -12,6 +12,7 @@ interface Props {
   onNew: () => void
   onLoadSelected: () => void
   onExport: (mode: 'copy' | 'download') => void
+  onBack: () => void
 }
 
 export function EditorPanel({
@@ -24,11 +25,18 @@ export function EditorPanel({
   onNew,
   onLoadSelected,
   onExport,
+  onBack,
 }: Props) {
   return (
     <section className="ark-panel ark-panel--full" aria-label="站点数据编辑">
       <header className="ark-panel__head">
-        <p className="ark-kicker">DATA EDITOR / GCJ-02</p>
+        <button type="button" className="ark-back" onClick={onBack}>
+          <IconBack width={13} height={13} />
+          {isNew ? '索引 INDEX' : '站点 STATION'}
+        </button>
+        <p className="ark-kicker" style={{ marginTop: 10 }}>
+          DATA EDITOR / GCJ-02
+        </p>
         <div className="ark-panel__title-row" style={{ marginTop: 8 }}>
           <span className="ark-panel__bignum">
             <em>#</em>

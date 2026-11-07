@@ -174,16 +174,20 @@ export default function App() {
       setMode('edit')
       setPanelView('editor')
       setPanelOpen(true)
-      if (!draft) {
-        if (selectedId) {
-          const st = stations.find((s) => s.id === selectedId)
-          if (st) {
-            setDraft({ ...st, images: [...st.images] })
-            setIsNewDraft(false)
-            ctl?.setPickPoint({ lng: st.lng, lat: st.lat })
-            return
-          }
+      // edit：跟随当前选中站点载入草稿；草稿与选中共属同一站点时保留未保存修改
+      if (selectedId) {
+        const st = stations.find((s) => s.id === selectedId)
+        if (st && draft?.id !== st.id) {
+          setDraft({ ...st, images: [...st.images] })
+          setIsNewDraft(false)
+          ctl?.setPickPoint({ lng: st.lng, lat: st.lat })
+        } else if (!draft) {
+          setDraft(emptyDraft())
+          setIsNewDraft(true)
         }
+        return
+      }
+      if (!draft) {
         setDraft(emptyDraft())
         setIsNewDraft(true)
       }
@@ -472,6 +476,12 @@ export default function App() {
             showToast(`已载入：${selected.name}`)
           }}
           onExport={(how) => exportJson(how)}
+          onBack={() => {
+            setMode('browse')
+            setPickTarget({ kind: 'free' })
+            ctlRef.current?.setPickPoint(null)
+            setPanelView(selectedId ? 'detail' : 'index')
+          }}
         />
       )}
 
