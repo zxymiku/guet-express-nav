@@ -23,12 +23,17 @@ JS API 2.0 起强制安全校验，两种方式：
 
 ## 3. 域名白名单
 
-| 环境 | Key | 白名单建议 |
-| --- | --- | --- |
-| map.zxymiku.top | Web Key A | 绑定 `map.zxymiku.top`（控制台 → Key 设置 → 域名白名单） |
-| Android WebView | Web Key B | **留空**（Capacitor 域为 `https://localhost`，不可绑定校园网外域名；白名单留空表示不校验来源，Key 泄露风险由 jscode + 渠道隔离缓解） |
+**推荐：白名单留空。** Capacitor APK 内 WebView 的域是 `https://localhost`，
+无法与 `map.zxymiku.top` 共用同一份白名单。白名单留空 = 不校验来源，
+Web 与 Android 双端都能加载；Key 的滥用风险由「不进仓库 + jscode 配套」缓解。
 
-> 两个 Key 不要复用同一枚：Web Key A 配置白名单后，Android 端 `https://localhost` 会被拒绝。
+| 方案 | 配置 | 代价 |
+| --- | --- | --- |
+| ✅ 单 Key，白名单留空 | 控制台 → Key 设置 → 域名白名单 **留空** | 零维护，Web/APK 通吃 |
+| 双 Key | Web Key 白名单 `map.zxymiku.top`；APK Key 白名单留空 | 需维护两枚 Key 与两套 Secrets |
+
+> ⚠ 若 Web Key 配置了白名单（哪怕是只填 `map.zxymiku.top`），APK 内地图会被拒绝，
+> 表现为「底图 20s 未就绪 → 已切换演示模式」。
 
 ## 4. 变量映射
 

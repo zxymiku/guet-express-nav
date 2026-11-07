@@ -8,6 +8,7 @@ import type { ExpressStation, RouteMode } from './data'
 import { CAMPUS_CENTER, haversineM } from './data'
 import { forceMock } from './config'
 import type { AmapConfig } from './config'
+import { isNative } from './native'
 
 export type LatLng = { lng: number; lat: number }
 export interface RouteResult {
@@ -177,11 +178,12 @@ class AMapController implements MapController {
       showLabel: true,
     })
     map.clearMap()
-    // 等待首帧瓦片就绪，无效 Key / 域名白名单问题在此暴露并回退演示模式
+    // 等待首帧瓦片就绪；移动网络较慢时延长容忍窗口（20s），
+    // 无效 Key / 域名白名单问题在此暴露并回退演示模式
     await new Promise<void>((resolve, reject) => {
       const timer = window.setTimeout(
-        () => reject(new Error('底图加载超时（检查 Key 与域名白名单）')),
-        10000,
+        () => reject(new Error('底图 20s 未就绪（Key 域名白名单或网络问题）')),
+        20000,
       )
       map.on('complete', () => {
         window.clearTimeout(timer)
@@ -839,9 +841,12 @@ export async function createMapController(
       const controller = await AMapController.create(host, config)
       return { controller }
     } catch (err) {
+      const hint = isNative()
+        ? 'APK 内请到高德控制台将该 Key 的域名白名单留空'
+        : '请检查 Key 域名白名单与网络'
       return {
         controller: new MockController(host),
-        warning: (err as Error).message + ' — 已切换演示模式',
+        warning: `${(err as Error).message} — 已切换演示模式（${hint}）`,
       }
     }
   }
