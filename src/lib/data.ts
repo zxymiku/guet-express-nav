@@ -1,9 +1,9 @@
 /**
- * 快递站数据模型与花江校区示例数据
+ * 快递站数据模型与花江校区站点数据
  * 坐标系：GCJ-02（高德 / 火星坐标），与高德 JS API 一致
  *
- * ⚠ 初始坐标为近似估计值。请在应用内进入「编辑」模式，用「拾取坐标」
- *   在真实位置打点校准，然后通过「导出 JSON」回写本文件。
+ * ✅ 坐标已于 2026-11-07 按现场校准（应用内编辑器拾取 → 导出 JSON 回写）。
+ * 后续新增/调整站点：应用内「编辑」→ 拾取 → 导出 JSON 覆盖 STATIONS 即可。
  */
 
 export type RouteMode = 'walk' | 'drive' | 'transit'
@@ -27,8 +27,8 @@ export interface ExpressStation {
   description?: string
 }
 
-/** 校区中心（地图初始视野）——花江校区，GCJ-02 */
-export const CAMPUS_CENTER = { lng: 110.423, lat: 25.3085 }
+/** 校区中心（地图初始视野）——花江站点群几何中心，GCJ-02 */
+export const CAMPUS_CENTER = { lng: 110.4159, lat: 25.3144 }
 /** 校区名称 */
 export const CAMPUS_NAME = '花江校区'
 export const CAMPUS_NAME_EN = 'GUET HUAJIANG CAMPUS'
@@ -50,12 +50,11 @@ export const STATIONS: ExpressStation[] = [
     brand: '顺丰 · 京东 · 极兔 · 丰巢',
     brandEn: 'SF EXPRESS · JD · J&T · FENGNIAO',
     campus: CAMPUS_NAME,
-    lng: 110.4243,
-    lat: 25.3094,
+    lng: 110.410379,
+    lat: 25.312315,
     images: [
       '/stations/20261107-164357.jpg',
       '/stations/20261107-164355.jpg',
-      '/stations/20261107-165514.jpg',
     ],
     businessHours: '08:30 – 21:00',
     description:
@@ -67,8 +66,8 @@ export const STATIONS: ExpressStation[] = [
     brand: '菜鸟 · 中通',
     brandEn: 'CAINIAO · ZTO',
     campus: CAMPUS_NAME,
-    lng: 110.4186,
-    lat: 25.3032,
+    lng: 110.41516,
+    lat: 25.320242,
     images: ['/stations/20261107-165456.jpg'],
     businessHours: '09:00 – 21:30',
     description:
@@ -76,12 +75,12 @@ export const STATIONS: ExpressStation[] = [
   },
   {
     id: 'post-service',
-    name: '花江校区综合便民服务站',
+    name: '中国邮政',
     brand: '中国邮政',
     brandEn: 'CHINA POST',
     campus: CAMPUS_NAME,
-    lng: 110.416,
-    lat: 25.3058,
+    lng: 110.419885,
+    lat: 25.304157,
     images: ['/stations/20261107-171811.jpg', '/stations/20261107-171817.jpg'],
     businessHours: '09:00 – 18:00',
     description:
@@ -89,16 +88,20 @@ export const STATIONS: ExpressStation[] = [
   },
   {
     id: 'east-pickup',
-    name: '东门临时取包点',
-    brand: '多品牌代收',
+    name: '后街多多驿站',
+    brand: '多多 · 多品牌代收',
     brandEn: 'MULTI-BRAND PICKUP',
     campus: CAMPUS_NAME,
-    lng: 110.4262,
-    lat: 25.3062,
-    images: ['/stations/20261107-170115.jpg'],
+    lng: 110.418241,
+    lat: 25.320931,
+    images: [
+      '/stations/20261107-170115.jpg',
+      '/stations/qq-20261107-195749.jpg',
+      '/stations/qq-20261107-195819.jpg',
+    ],
     businessHours: '10:00 – 20:00',
     description:
-      '东门商业街沿线的临时集中取包点，多品牌包裹摊位分发。位置与人流随季节调整，以现场为准。',
+      '后街沿线的集中取包点，多品牌包裹摊位与货架分发；位置与人流随季节调整，以现场为准。',
   },
 ]
 
