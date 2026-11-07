@@ -23,6 +23,11 @@ export const GUIDE_STEPS: GuideStep[] = [
     body: '全部快递站一览。点击任意一行：查看实拍照片、营业时间，并直接规划到该站的路线。',
   },
   {
+    selector: '.ark-rail-btn[aria-label="站点索引"]',
+    title: '仅地图模式',
+    body: '再次点击同一图标即可收起当前面板，只保留地图舞台；需要时再点一次重新展开。',
+  },
+  {
     selector: '.ark-map-host',
     shrink: 0.32,
     title: '地图舞台',
