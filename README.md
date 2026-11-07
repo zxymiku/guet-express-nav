@@ -94,8 +94,7 @@ guet-express-nav/
 
 - [x] Web 全功能 + Ark Depth 4 视觉（桌面 / 竖屏重排版已实测）→ **https://map.zxymiku.top**
 - [x] Cloudflare Workers 部署 + 自定义域绑定（`/api/health` 可自检）
-- [x] Android 云端签名构建 → **Release `build-1`** 已发布 APK（本地零 Gradle）
-- [ ] 地图真实底图：高德 Key 申请后一条命令注入（当前为演示模式，其余功能真实可用）
-      —— `npx wrangler secret put AMAP_JS_KEY` + `AMAP_SECURITY_CODE` → `npm run deploy`；
-      Android 端 `gh secret set AMAP_ANDROID_KEY / AMAP_SECURITY_CODE` 后重跑 workflow
+- [x] 高德 Key / jscode 已注入（Web 经 Cloudflare Secrets 运行时下发；Android 经 GitHub Secrets 构建期注入）
+      —— 真实暗色底图、路线规划、POI 均已在线上验证
+- [x] Android 云端签名构建 → Release 自动发布 APK（本地零 Gradle）
 - [ ] 站点坐标校准：应用内编辑器拾取 → 导出回写（docs/data-model.md §3，初始坐标为估计值）

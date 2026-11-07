@@ -124,6 +124,7 @@ export default function App() {
       controller.onMapClick((p) => handleMapClickRef.current(p))
       controller.onViewChange(setViewport)
       controller.onCursorMove(setCursor)
+      controller.snapshotView()
       setCtlReady(true)
       if (warning) setToast(warning)
     })

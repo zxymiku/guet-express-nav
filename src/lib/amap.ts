@@ -42,6 +42,8 @@ export interface MapController {
   geolocate(): Promise<LatLng>
   onViewChange(cb: (v: ViewportInfo) => void): void
   onCursorMove(cb: (p: LatLng | null) => void): void
+  /** 注册回调后立即补发一次当前视野（地图 complete 可能早于回调注册） */
+  snapshotView(): void
   zoomBy(delta: number): void
   resetView(): void
   readonly mock: boolean
@@ -244,6 +246,10 @@ class AMapController implements MapController {
   }
   onCursorMove(cb: (p: LatLng | null) => void): void {
     this.cursorCb = cb
+  }
+
+  snapshotView(): void {
+    this.emitView()
   }
 
   setPickPoint(p: LatLng | null, onDrag?: (p: LatLng) => void): void {
@@ -640,6 +646,10 @@ class MockController implements MapController {
   }
   onCursorMove(_cb: (p: LatLng | null) => void): void {
     /* 演示模式不提供光标跟踪 */
+  }
+
+  snapshotView(): void {
+    this.emitView()
   }
 
   setPickPoint(p: LatLng | null, onDrag?: (p: LatLng) => void): void {
