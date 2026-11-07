@@ -101,7 +101,7 @@ export const STATIONS: ExpressStation[] = [
   },
   {
     id: 'west-pickup',
-    name: '西区快递代收点',
+    name: '前街快递站',
     brand: '多品牌代收',
     brandEn: 'MULTI-BRAND PICKUP',
     campus: CAMPUS_NAME,
