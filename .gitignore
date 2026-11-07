@@ -18,6 +18,7 @@ android/keystore.properties
 android/local.properties
 *.jks
 *.keystore
+keystore-backup-info.txt
 
 # capacitor generated native build artifacts
 android/app/build/
