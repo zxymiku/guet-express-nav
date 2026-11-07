@@ -1,0 +1,118 @@
+# 桂电快递导航 — Android 云端构建
+#
+# 硬性约束：本地不做任何 Gradle 编译；所有 Android 构建发生在 GitHub Actions runner。
+# 产物：签名 release APK 自动发布到 GitHub Releases。
+#
+# 所需 Repository Secrets（配置步骤见 docs/android-ci.md）：
+#   ANDROID_KEYSTORE_BASE64  Base64(keytool 生成的 .jks)
+#   KEYSTORE_PASSWORD        keystore 密码
+#   KEY_ALIAS                签名别名
+#   KEY_PASSWORD             别名密码
+#   AMAP_ANDROID_KEY         高德 Web(JS API) Key（WebView 内使用；勿配置域名白名单或额外放行）
+#   AMAP_SECURITY_CODE       该 Key 对应的安全密钥 jscode
+
+name: android-build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # 发布 Release 需要
+
+jobs:
+  build:
+    name: Build signed APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build web bundle (secrets injected at build time)
+        run: npm run build
+        env:
+          VITE_AMAP_KEY: ${{ secrets.AMAP_ANDROID_KEY }}
+          VITE_AMAP_SECURITY_CODE: ${{ secrets.AMAP_SECURITY_CODE }}
+
+      - name: Sync web assets into Android project
+        run: npx cap sync android
+
+      - name: Guard — check signing secrets
+        id: guard
+        run: |
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::未配置签名 Secrets（ANDROID_KEYSTORE_BASE64 等），已跳过 APK 构建。配置步骤见 docs/android-ci.md"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Java 21
+        if: steps.guard.outputs.ready == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Decode signing keystore
+        if: steps.guard.outputs.ready == 'true'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/keystore.jks
+          {
+            echo "storeFile=keystore.jks"
+            echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}"
+            echo "keyAlias=${{ secrets.KEY_ALIAS }}"
+            echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
+          } > android/keystore.properties
+
+      - name: Gradle assembleRelease (cloud only)
+        if: steps.guard.outputs.ready == 'true'
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Rename APK
+        if: steps.guard.outputs.ready == 'true'
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk \
+             "out/guet-express-nav-build-${{ github.run_number }}.apk"
+          ls -la out
+
+      - name: Upload build artifact
+        if: steps.guard.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: guet-express-nav-apk-${{ github.run_number }}
+          path: out/*.apk
+          if-no-files-found: error
+
+      - name: Publish to GitHub Releases
+        if: steps.guard.outputs.ready == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: 桂电快递导航 Build ${{ github.run_number }}
+          body: |
+            自动构建：`main` 分支 ${{ github.sha }}（#${{ github.run_number }}）
+
+            - 安装：下载 APK → 允许安装未知来源 → 打开「桂电快递导航」
+            - 地图密钥由 GitHub Secrets 在构建期注入，未泄露于仓库
+            - 变更记录见提交历史
+          files: out/*.apk
+          fail_on_unmatched_files: true

@@ -1,0 +1,38 @@
+{
+  "name": "guet-express-nav",
+  "private": true,
+  "version": "1.0.0",
+  "description": "桂电快递导航 — GUET Express Navigation · 花江校区快递站索引与路线导航",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.worker.json --noEmit",
+    "preview": "vite preview",
+    "dev:worker": "wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "cap:add": "cap add android",
+    "cap:sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/browser": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@fontsource/ibm-plex-mono": "^5.1.0",
+    "@fontsource/noto-sans-sc": "^5.1.0",
+    "@fontsource/space-grotesk": "^5.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@cloudflare/workers-types": "^5",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "sharp": "^0.35.5",
+    "typescript": "~5.7.2",
+    "vite": "^6.3.5",
+    "wrangler": "^4.0.0"
+  }
+}

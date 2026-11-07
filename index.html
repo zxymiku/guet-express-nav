@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN" data-ark-theme="ark" data-ark-depth="maximal">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#080a0b" />
+    <meta name="description" content="桂电快递导航 — 桂林电子科技大学花江校区快递站索引、选点与路线导航" />
+    <title>桂电快递导航 · GUET EXPRESS NAV</title>
+    <style>
+      /* 首屏防白闪：在 CSS 加载前先把底色压到近黑 */
+      html { background: #080a0b; color-scheme: dark; }
+    </style>
+    <!--
+      高德配置：生产由 Worker 下发（见 worker/index.ts）；本地静态预览时该请求
+      返回 null，前端回退 VITE_ 变量或演示模式。须先于模块脚本执行。
+    -->
+    <script src="/api/amap-config"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

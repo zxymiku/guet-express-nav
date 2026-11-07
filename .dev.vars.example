@@ -1,0 +1,4 @@
+# 复制为 .dev.vars（已被 .gitignore 排除，不会提交）供 `wrangler dev` 使用。
+# 生产环境用 `wrangler secret put AMAP_JS_KEY` / `wrangler secret put AMAP_SECURITY_CODE` 设置。
+AMAP_JS_KEY=你的高德Web端JSAPI_Key
+AMAP_SECURITY_CODE=你的高德安全密钥jscode

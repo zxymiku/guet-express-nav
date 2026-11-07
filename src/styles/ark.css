@@ -1,0 +1,917 @@
+/* ============================================================
+   ARK SHELL & COMPONENTS — 桂电快递导航
+   family: ark · depth: maximal
+   构图：地图为舞台（stage），导航/状态/操作为停靠边缘的仪表（instrument）
+   ============================================================ */
+
+/* ============================================================
+   1. SHELL GRID — 顶栏 + 侧轨 + 舞台 + 状态条
+   ============================================================ */
+
+.ark-shell {
+  height: 100%;
+  display: grid;
+  grid-template-columns: var(--ark-rail-w) minmax(0, 1fr);
+  grid-template-rows: var(--ark-topbar-h) minmax(0, 1fr) var(--ark-status-h);
+  background: var(--ark-ink);
+}
+
+/* ---- 1.1 顶栏 ---- */
+.ark-topbar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px 0 14px;
+  border-bottom: var(--ark-rule) solid var(--ark-line);
+  background: var(--ark-ink);
+  position: relative;
+  z-index: var(--z-topbar);
+}
+
+.ark-mark {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ark-line-strong);
+  clip-path: var(--ark-cut-tr);
+  font-family: var(--ark-font-cjk);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--ark-paper);
+  background:
+    linear-gradient(135deg, transparent 0 62%, var(--ark-signal-wash) 62%);
+  position: relative;
+}
+.ark-mark::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 5px;
+  height: 5px;
+  background: var(--ark-signal);
+}
+
+.ark-brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ark-brand__name {
+  font-family: var(--ark-font-cjk);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ark-brand__name em {
+  font-style: normal;
+  color: var(--ark-signal);
+}
+.ark-brand__sub {
+  font-family: var(--ark-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+  white-space: nowrap;
+}
+
+.ark-topbar__spacer { flex: 1; }
+
+.ark-clock {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--ark-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ark-clock__time { font-size: 16px; letter-spacing: 0.04em; }
+.ark-clock__date { font-size: 10px; color: var(--ark-muted); letter-spacing: 0.1em; }
+
+.ark-mode-switch { display: flex; gap: 8px; }
+
+/* ---- 1.2 侧轨 ---- */
+.ark-rail {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-right: var(--ark-rule) solid var(--ark-line);
+  background: var(--ark-ink);
+  z-index: calc(var(--z-panel) + 1);
+}
+
+.ark-rail__group { display: flex; flex-direction: column; gap: 8px; }
+
+.ark-rail-btn {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ark-line);
+  color: var(--ark-muted);
+  position: relative;
+  transition:
+    color var(--ark-motion-direct) var(--ark-ease),
+    border-color var(--ark-motion-direct) var(--ark-ease),
+    background var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-rail-btn svg { width: 18px; height: 18px; }
+.ark-rail-btn:hover { color: var(--ark-paper); border-color: var(--ark-line-strong); }
+.ark-rail-btn[aria-pressed="true"] {
+  color: var(--ark-signal);
+  border-color: var(--ark-signal);
+  background: var(--ark-signal-wash);
+}
+.ark-rail-btn[aria-pressed="true"]::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  background: var(--ark-signal);
+}
+
+/* 侧轨友链：竖排文字作为次级装饰，完整语义由 aria-label 提供 */
+.ark-rail__friend {
+  width: 42px;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ark-line);
+  color: var(--ark-muted);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  writing-mode: vertical-rl;
+  text-decoration: none;
+  transition:
+    color var(--ark-motion-direct) var(--ark-ease),
+    border-color var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-rail__friend:hover { color: var(--ark-signal); border-color: var(--ark-line-signal); }
+
+/* ---- 1.3 舞台 ---- */
+.ark-stage {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  overflow: hidden;
+  background: var(--ark-ink);
+  /* 舞台层 2：工程网格 */
+  background-image:
+    linear-gradient(rgba(244, 246, 246, var(--ark-layer-grid)) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 246, 246, var(--ark-layer-grid)) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.ark-map-host { position: absolute; inset: 0; z-index: var(--z-map); }
+.ark-map-host .amap-container { background: var(--ark-ink) !important; }
+
+/* 舞台层 3：边缘遮罩（vignette），加深四周聚焦中心 */
+.ark-stage__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-stage-instrument);
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(4, 5, 6, 0.42), transparent 18%),
+    linear-gradient(0deg, rgba(4, 5, 6, 0.5), transparent 22%),
+    linear-gradient(90deg, rgba(4, 5, 6, 0.34), transparent 14%);
+}
+
+/* ---- 1.4 状态条 ---- */
+.ark-status {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 16px;
+  border-top: var(--ark-rule) solid var(--ark-line);
+  background: var(--ark-ink);
+  font-family: var(--ark-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--ark-muted);
+  z-index: var(--z-topbar);
+  white-space: nowrap;
+}
+.ark-status__dot {
+  width: 7px;
+  height: 7px;
+  background: var(--ark-signal);
+  display: inline-block;
+  margin-right: 8px;
+  animation: ark-breathe var(--ark-motion-attention) ease-in-out infinite;
+}
+.ark-status__dot--idle { background: var(--ark-faint); animation: none; }
+.ark-status__group { display: flex; align-items: center; gap: 6px; }
+.ark-status__sep { color: var(--ark-faint); }
+.ark-status__spacer { flex: 1; }
+.ark-status a { color: var(--ark-muted); text-decoration: none; }
+.ark-status a:hover { color: var(--ark-signal); }
+
+/* ============================================================
+   2. STAGE INSTRUMENTS — 舞台仪表
+   ============================================================ */
+
+/* ---- 2.1 缩放 / 复位（右上） ---- */
+.ark-zoom-stack {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: var(--z-stage-instrument);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ark-zoom-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--ark-panel);
+  border: 1px solid var(--ark-line-strong);
+  color: var(--ark-paper);
+  font-family: var(--ark-font-mono);
+  font-size: 16px;
+  backdrop-filter: blur(2px);
+  transition: border-color var(--ark-motion-direct) var(--ark-ease), color var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-zoom-btn:hover { border-color: var(--ark-signal); color: var(--ark-signal); }
+.ark-zoom-btn svg { width: 15px; height: 15px; }
+
+/* ---- 2.2 实时光标坐标（左下，真实数据仪表） ---- */
+.ark-coord-hud {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: var(--z-stage-instrument);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  background: var(--ark-panel);
+  border: 1px solid var(--ark-line);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+.ark-coord-hud__cell { display: flex; align-items: baseline; gap: 6px; }
+.ark-coord-hud__k { font-size: 9px; letter-spacing: 0.18em; color: var(--ark-faint); font-family: var(--ark-font-mono); }
+.ark-coord-hud__v { font-family: var(--ark-font-mono); font-size: 12px; color: var(--ark-paper); font-variant-numeric: tabular-nums; min-width: 76px; }
+
+/* ---- 2.3 拾取提示（顶部居中，仅拾取模式） ---- */
+.ark-pick-hint {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-stage-instrument);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: var(--ark-panel-raised);
+  border: 1px solid var(--ark-signal);
+  color: var(--ark-paper);
+  font-size: 12.5px;
+  clip-path: var(--ark-cut-tr);
+  animation: ark-reveal-y var(--ark-motion-reveal) var(--ark-ease-out) both;
+}
+.ark-pick-hint .ark-pick-hint__sig {
+  width: 8px;
+  height: 8px;
+  background: var(--ark-signal);
+  animation: ark-breathe 1.2s ease-in-out infinite;
+}
+.ark-pick-hint__kicker {
+  font-family: var(--ark-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ark-signal);
+  text-transform: uppercase;
+}
+
+/* ---- 2.4 十字导轨（拾取模式覆盖层） ---- */
+.ark-crosshair {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-stage-instrument);
+  pointer-events: none;
+  display: none;
+}
+.ark-stage.is-picking .ark-crosshair { display: block; }
+.ark-stage.is-picking .ark-map-host { cursor: crosshair; }
+.ark-crosshair__x,
+.ark-crosshair__y {
+  position: absolute;
+  background: repeating-linear-gradient(90deg, var(--ark-line-signal) 0 6px, transparent 6px 12px);
+}
+.ark-crosshair__x { left: 0; right: 0; top: 50%; height: 1px; }
+.ark-crosshair__y { top: 0; bottom: 0; left: 50%; width: 1px; background: repeating-linear-gradient(180deg, var(--ark-line-signal) 0 6px, transparent 6px 12px); }
+
+/* ============================================================
+   3. SIDE PANEL — 索引 / 详情 / 编辑器 共用槽位
+   ============================================================ */
+
+.ark-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--ark-panel-w);
+  z-index: var(--z-panel);
+  display: flex;
+  flex-direction: column;
+  background: var(--ark-panel);
+  backdrop-filter: blur(6px);
+  border-right: var(--ark-rule) solid var(--ark-line);
+}
+
+.ark-panel__head {
+  flex: none;
+  padding: 18px 20px 14px;
+  border-bottom: var(--ark-rule) solid var(--ark-line);
+}
+.ark-panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.ark-panel__foot {
+  flex: none;
+  padding: 12px 20px;
+  border-top: var(--ark-rule) solid var(--ark-line);
+}
+
+/* 面板标题构图：巨型索引数字 + 双语标签 + 延伸规则线 */
+.ark-panel__title-row { display: flex; align-items: flex-end; gap: 14px; }
+.ark-panel__bignum {
+  font-family: var(--ark-font-latin);
+  font-weight: 700;
+  font-size: 54px;
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  color: var(--ark-paper);
+}
+.ark-panel__bignum em { font-style: normal; color: var(--ark-signal); }
+.ark-panel__title-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 4px; }
+.ark-panel__title {
+  font-family: var(--ark-font-cjk);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.ark-panel__title-rule { margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+.ark-panel__title-rule .ark-rule-h { flex: 1; }
+
+/* ---- 3.1 站点索引列表 ---- */
+.ark-index-list { display: flex; flex-direction: column; }
+
+.ark-index-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 68px;
+  padding: 10px 20px 10px 16px;
+  text-align: left;
+  border-bottom: var(--ark-rule) solid var(--ark-line);
+  position: relative;
+  transition: background var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-index-row:hover { background: var(--ark-paper-wash); }
+.ark-index-row[aria-current="true"] { background: var(--ark-signal-wash); }
+.ark-index-row[aria-current="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  bottom: -1px;
+  width: 3px;
+  background: var(--ark-signal);
+}
+.ark-index-row__idx {
+  font-family: var(--ark-font-mono);
+  font-size: 13px;
+  color: var(--ark-faint);
+  font-variant-numeric: tabular-nums;
+}
+.ark-index-row[aria-current="true"] .ark-index-row__idx { color: var(--ark-signal); }
+.ark-index-row__name {
+  font-family: var(--ark-font-cjk);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ark-index-row__meta {
+  display: flex;
+  gap: 10px;
+  margin-top: 3px;
+  font-family: var(--ark-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.ark-index-row__meta > span { overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }
+.ark-index-row__arrow { color: var(--ark-faint); }
+.ark-index-row:hover .ark-index-row__arrow { color: var(--ark-signal); }
+
+/* ---- 3.2 详情档案（dossier） ---- */
+.ark-dossier { padding: 18px 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+.ark-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  color: var(--ark-muted);
+  font-family: var(--ark-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  min-height: 32px;
+  transition: color var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-back:hover { color: var(--ark-signal); }
+
+.ark-dossier__idrow { display: flex; align-items: baseline; gap: 14px; }
+.ark-dossier__num {
+  font-family: var(--ark-font-latin);
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+}
+.ark-dossier__brand { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.ark-tag {
+  font-family: var(--ark-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+  border: 1px solid var(--ark-line);
+  padding: 3px 8px;
+}
+.ark-tag--signal { color: var(--ark-signal); border-color: var(--ark-line-signal); }
+
+.ark-dossier__name {
+  font-family: var(--ark-font-cjk);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+.ark-meta-table { border-top: var(--ark-rule) solid var(--ark-line); }
+.ark-meta-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: var(--ark-rule) solid var(--ark-line);
+  align-items: baseline;
+}
+.ark-meta-row__k {
+  font-family: var(--ark-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+}
+.ark-meta-row__v { font-size: 13px; color: var(--ark-paper); min-width: 0; overflow-wrap: anywhere; }
+.ark-meta-row__v--mono { font-family: var(--ark-font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.ark-dossier__desc { font-size: 13px; line-height: 1.8; color: rgba(244, 246, 246, 0.82); }
+
+/* ---- 3.3 编辑式图库：舞台 + 边缘胶片条 ---- */
+.ark-gallery { display: flex; flex-direction: column; gap: 8px; }
+.ark-gallery__stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--ark-ink-2);
+  clip-path: var(--ark-cut-tr);
+}
+.ark-gallery__stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.88) contrast(1.04);
+}
+.ark-gallery__stage::after {
+  /* 图面压暗遮罩：保证角标与图注可读 */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(200deg, transparent 55%, rgba(4, 5, 6, 0.55));
+  pointer-events: none;
+}
+.ark-gallery__caption {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--ark-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ark-paper);
+}
+.ark-gallery__caption .ark-gallery__count { color: var(--ark-signal); }
+
+.ark-gallery__strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.ark-gallery__thumb {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 44px;
+  border: 1px solid var(--ark-line);
+  padding: 0;
+  overflow: hidden;
+  opacity: 0.55;
+  transition: opacity var(--ark-motion-direct) var(--ark-ease), border-color var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-gallery__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ark-gallery__thumb:hover { opacity: 0.85; }
+.ark-gallery__thumb.is-active { opacity: 1; border-color: var(--ark-signal); }
+.ark-gallery__thumb.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--ark-signal);
+}
+.ark-gallery__thumb__idx {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  font-family: var(--ark-font-mono);
+  font-size: 8px;
+  color: var(--ark-paper);
+  background: rgba(4, 5, 6, 0.72);
+  padding: 0 3px;
+  letter-spacing: 0.08em;
+}
+.ark-gallery__empty {
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--ark-line);
+  color: var(--ark-faint);
+  font-family: var(--ark-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+/* ---- 3.4 导航操作区 ---- */
+.ark-actions { display: flex; flex-direction: column; gap: 10px; }
+.ark-actions__row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ark-actions__row .ark-btn { flex: 1 1 auto; }
+
+/* ============================================================
+   4. ROUTE DOSSIER — 路线档案（舞台底部居中）
+   ============================================================ */
+
+.ark-route {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-dossier);
+  width: min(620px, calc(100% - 460px));
+  background: var(--ark-panel-raised);
+  border: 1px solid var(--ark-line-strong);
+  clip-path: var(--ark-cut-bl);
+  animation: ark-reveal-y var(--ark-motion-reveal) var(--ark-ease-out) both;
+}
+.ark-route__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: var(--ark-rule) solid var(--ark-line);
+}
+.ark-route__sig { width: 8px; height: 8px; background: var(--ark-signal); animation: ark-breathe 1.4s ease-in-out infinite; }
+.ark-route__title { font-weight: 600; font-size: 13px; letter-spacing: 0.04em; }
+.ark-route__mode {
+  font-family: var(--ark-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ark-signal);
+}
+.ark-route__close { margin-left: auto; color: var(--ark-muted); width: 28px; height: 28px; display: grid; place-items: center; }
+.ark-route__close:hover { color: var(--ark-paper); }
+.ark-route__metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.ark-route__cell {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ark-route__cell + .ark-route__cell { border-left: var(--ark-rule) solid var(--ark-line); }
+.ark-route__k {
+  font-family: var(--ark-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ark-muted);
+}
+.ark-route__v {
+  font-family: var(--ark-font-latin);
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.ark-route__v small { font-size: 11px; font-weight: 500; color: var(--ark-muted); margin-left: 3px; letter-spacing: 0.06em; }
+.ark-route__foot {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 14px;
+}
+.ark-route__foot .ark-btn { min-height: 38px; flex: 1; }
+
+/* ============================================================
+   5. EDITOR — 管理编辑面板
+   ============================================================ */
+
+.ark-editor { padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+.ark-editor__grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ark-editor__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ark-editor__note { font-size: 11.5px; color: var(--ark-muted); line-height: 1.7; }
+.ark-editor__note code { font-family: var(--ark-font-mono); color: var(--ark-state); font-size: 11px; }
+
+/* ============================================================
+   6. MAP MARKERS — Ark 风格自定义标记
+   ============================================================ */
+
+.ark-marker {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+}
+.ark-marker__box {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 10, 11, 0.9);
+  border: 1px solid rgba(244, 246, 246, 0.42);
+  color: rgba(244, 246, 246, 0.85);
+  font-family: var(--ark-font-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 160ms var(--ark-ease), color 160ms var(--ark-ease), background 160ms var(--ark-ease);
+}
+.ark-marker:hover .ark-marker__box { border-color: var(--ark-paper); color: var(--ark-paper); }
+
+.ark-marker.is-active .ark-marker__box {
+  border-color: var(--ark-signal);
+  color: var(--ark-signal);
+  background: rgba(8, 10, 11, 0.95);
+}
+/* 选中：方形角标 + 信号脉冲环 */
+.ark-marker.is-active::before,
+.ark-marker.is-active::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  pointer-events: none;
+}
+.ark-marker.is-active::before {
+  border-top: 1px solid var(--ark-signal);
+  border-left: 1px solid var(--ark-signal);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.ark-marker.is-active::after {
+  border-bottom: 1px solid var(--ark-signal);
+  border-right: 1px solid var(--ark-signal);
+  clip-path: polygon(100% 100%, 100% 0, 0 100%);
+}
+.ark-marker__pulse {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ark-signal);
+  animation: ark-pulse-square var(--ark-motion-attention) var(--ark-ease) infinite;
+  pointer-events: none;
+}
+
+/* 起点标记 */
+.ark-marker--origin .ark-marker__box {
+  border-color: var(--ark-paper);
+  color: var(--ark-ink);
+  background: var(--ark-paper);
+  font-family: var(--ark-font-cjk);
+  font-weight: 700;
+}
+
+/* 选点标记：菱形 + 坐标签 */
+.ark-marker--pick { width: 34px; height: 34px; }
+.ark-marker--pick .ark-marker__diamond {
+  width: 16px;
+  height: 16px;
+  transform: rotate(45deg);
+  border: 1px solid var(--ark-signal);
+  background: rgba(24, 209, 255, 0.18);
+}
+.ark-marker--pick .ark-marker__center {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--ark-signal);
+}
+.ark-marker__coords {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--ark-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  color: var(--ark-signal);
+  background: rgba(8, 10, 11, 0.92);
+  border: 1px solid var(--ark-line-signal);
+  padding: 3px 8px;
+}
+
+/* ============================================================
+   7. ERROR / EMPTY STATES
+   ============================================================ */
+
+.ark-alert {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-alert);
+  width: min(460px, calc(100% - 32px));
+  background: var(--ark-panel-raised);
+  border: 1px solid var(--ark-line-strong);
+  clip-path: var(--ark-cut-tr);
+  padding: 22px 24px;
+}
+.ark-alert__kicker { color: var(--ark-signal); }
+.ark-alert__title { font-weight: 700; font-size: 17px; margin: 8px 0 6px; }
+.ark-alert__body { font-size: 12.5px; color: var(--ark-muted); line-height: 1.8; }
+.ark-alert__body code { font-family: var(--ark-font-mono); color: var(--ark-state); font-size: 11.5px; }
+.ark-alert__actions { display: flex; gap: 8px; margin-top: 16px; }
+
+/* ============================================================
+   8. RESPONSIVE — 竖屏重排版（非缩放桌面坐标）
+   ============================================================ */
+
+@media (max-width: 1180px) {
+  :root { --ark-panel-w: 360px; }
+}
+
+@media (max-width: 880px) {
+  .ark-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 52px minmax(0, 1fr) 58px;
+  }
+  .ark-topbar {
+    padding: 0 12px;
+    gap: 10px;
+  }
+  .ark-mark { width: 30px; height: 30px; font-size: 14px; }
+  .ark-brand__name { font-size: 15px; }
+  .ark-brand__sub, .ark-mode-switch, .ark-clock__date { display: none; }
+  .ark-clock__time { font-size: 13px; }
+  .ark-clock { border-left: var(--ark-rule) solid var(--ark-line); padding-left: 10px; }
+
+  /* 侧轨 → 底部操作条 */
+  .ark-rail {
+    grid-column: 1;
+    grid-row: 3;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 6px;
+    border-right: 0;
+    border-top: var(--ark-rule) solid var(--ark-line);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .ark-rail__group { flex-direction: row; gap: 6px; }
+  .ark-rail-btn { width: 44px; height: 44px; }
+  .ark-rail-btn[aria-pressed="true"]::before {
+    left: -1px; right: -1px; top: auto; bottom: -1px;
+    width: auto; height: 2px;
+  }
+  .ark-rail__friend {
+    writing-mode: horizontal-tb;
+    min-height: 44px;
+    width: 70px;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .ark-stage { grid-column: 1; grid-row: 2; }
+  .ark-rail > .ark-kicker { display: none; }
+
+  /* 状态条隐藏，坐标仪保留在舞台左下 */
+  .ark-status { display: none; }
+
+  /* 索引 → 底部抽屉（半屏）；详情/编辑 → 全屏覆盖 */
+  .ark-panel {
+    top: auto;
+    right: 0;
+    width: auto;
+    max-height: 52vh;
+    border-right: 0;
+    border-top: var(--ark-rule) solid var(--ark-line-strong);
+    animation: ark-slide-up var(--ark-motion-reveal) var(--ark-ease-out) both;
+  }
+  .ark-panel--full {
+    top: 0;
+    bottom: 0;
+    max-height: none;
+    border-top: 0;
+  }
+  .ark-panel__head { padding: 14px 16px 10px; }
+  .ark-panel__bignum { font-size: 40px; }
+
+  .ark-route {
+    bottom: 66px;
+    width: calc(100% - 20px);
+  }
+  .ark-zoom-stack { top: auto; bottom: 12px; right: 12px; flex-direction: row; }
+  .ark-coord-hud { bottom: 12px; left: 12px; transform: scale(0.94); transform-origin: bottom left; }
+  .ark-pick-hint { top: 10px; width: calc(100% - 24px); justify-content: center; }
+}
+
+@keyframes ark-slide-up {
+  from { transform: translateY(24px); opacity: 0.001; }
+  to { transform: none; opacity: 1; }
+}
+
+/* 短横屏（手机横置）：压缩面板 */
+@media (max-height: 460px) and (orientation: landscape) {
+  .ark-panel { max-height: 86vh; }
+}
+
+/* ============================================================
+   8.5 TOAST — 状态回执（右下，短消息）
+   ============================================================ */
+
+.ark-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 46px;
+  z-index: 70;
+  max-width: 340px;
+  background: var(--ark-panel-raised);
+  border: 1px solid var(--ark-line-strong);
+  border-left: 2px solid var(--ark-signal);
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ark-paper);
+  animation: ark-reveal-y 240ms var(--ark-ease-out) both;
+}
+
+@media (max-width: 880px) {
+  .ark-toast { right: 10px; left: 10px; bottom: 64px; max-width: none; }
+}
+
+/* ============================================================
+   9. AMAP OVERRIDES — 底图保持中性近黑
+   ============================================================ */
+
+.amap-logo, .amap-copyright { opacity: 0.55; }
+.amap-info-close { display: none; }

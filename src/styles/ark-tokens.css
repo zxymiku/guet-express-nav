@@ -1,0 +1,352 @@
+/* ============================================================
+   ARK DESIGN TOKENS — family: ark · depth: maximal (4)
+   依据 .skills/ark-ui-skill-main/references/design-language.md
+   ink #080a0b · paper #f4f6f6 · signal #18d1ff · state #c8eb21
+   ============================================================ */
+
+:root {
+  /* ---- family: ark ---- */
+  --ark-ink: #080a0b;
+  --ark-ink-2: #0d1012;
+  --ark-ink-3: #13171a;
+  --ark-paper: #f4f6f6;
+  --ark-signal: #18d1ff;
+  --ark-state: #c8eb21;          /* 仅供成功 / 下载等次要状态信号 */
+  --ark-muted: #8d9396;
+  --ark-faint: #4d5457;
+  --ark-panel: rgba(8, 10, 11, 0.82);
+  --ark-panel-solid: #0b0e10;
+  --ark-panel-raised: rgba(13, 16, 18, 0.92);
+  --ark-shade: rgba(4, 5, 6, 0.55);
+
+  --ark-line: rgba(244, 246, 246, 0.16);
+  --ark-line-strong: rgba(244, 246, 246, 0.42);
+  --ark-line-signal: rgba(24, 209, 255, 0.45);
+  --ark-signal-wash: rgba(24, 209, 255, 0.1);
+  --ark-paper-wash: rgba(244, 246, 246, 0.06);
+
+  /* ---- depth: maximal ----
+     极繁层级允许 4–6 层舞台系统，但仅用于有信息角色的位置。 */
+  --ark-stage-layer-opacity: 1;
+  --ark-layer-grid: 0.055;       /* 舞台工程网格 */
+  --ark-layer-vignette: 0.5;     /* 舞台边缘遮罩 */
+  --ark-motion-direct: 200ms;    /* 直接交互 */
+  --ark-motion-reveal: 620ms;    /* 分节揭示 500–900ms */
+  --ark-motion-attention: 1900ms; /* 克制注意循环 1.6–2.4s */
+  --ark-ease: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ark-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---- typography ---- */
+  --ark-font-cjk: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", sans-serif;
+  --ark-font-latin: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --ark-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --ark-display-tracking: -0.045em;
+  --ark-display-leading: 0.9;
+  --ark-kicker-tracking: 0.16em;
+
+  /* ---- geometry ---- */
+  --ark-radius: 0px;             /* 家族默认 0；功能性允许 2–4px */
+  --ark-cut: 10px;               /* 45° 斜切口尺寸 */
+  --ark-rule: 1px;
+  --ark-topbar-h: 64px;
+  --ark-rail-w: 64px;
+  --ark-status-h: 30px;
+  --ark-panel-w: 408px;
+  --ark-target: 40px;            /* 可交互目标下限 */
+
+  /* ---- z index plan ---- */
+  --z-map: 0;
+  --z-stage-instrument: 10;
+  --z-panel: 20;
+  --z-dossier: 30;
+  --z-topbar: 40;
+  --z-alert: 60;
+
+  --ark-cut-tr: polygon(0 0, calc(100% - var(--ark-cut)) 0, 100% var(--ark-cut), 100% 100%, 0 100%);
+  --ark-cut-bl: polygon(0 0, 100% 0, 100% 100%, var(--ark-cut) 100%, 0 calc(100% - var(--ark-cut)));
+}
+
+[data-ark-theme="ark"] {
+  color-scheme: dark;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--ark-ink);
+  color: var(--ark-paper);
+  font-family: var(--ark-font-cjk);
+  font-size: 14px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+::selection { background: var(--ark-signal); color: var(--ark-ink); }
+
+/* 细滚动条：方形、规则线质感 */
+* { scrollbar-width: thin; scrollbar-color: var(--ark-faint) transparent; }
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--ark-faint); border-radius: 0; }
+*::-webkit-scrollbar-thumb:hover { background: var(--ark-muted); }
+
+/* 焦点：2px 信号色轮廓 + 偏移（无障碍规范） */
+:focus-visible {
+  outline: 2px solid var(--ark-signal);
+  outline-offset: 2px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+a { color: inherit; }
+
+img { display: block; }
+
+/* ============================================================
+   TYPOGRAPHY PRIMITIVES
+   ============================================================ */
+
+/* 大号展示标题：紧排 */
+.ark-display {
+  font-family: var(--ark-font-latin);
+  font-weight: 700;
+  line-height: var(--ark-display-leading);
+  letter-spacing: var(--ark-display-tracking);
+}
+
+.ark-display-cjk {
+  font-family: var(--ark-font-cjk);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+/* 微标签：大写拉丁 + 开排 */
+.ark-kicker {
+  font-family: var(--ark-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: var(--ark-kicker-tracking);
+  text-transform: uppercase;
+  color: var(--ark-muted);
+}
+
+/* 等宽数据 */
+.ark-mono {
+  font-family: var(--ark-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   RULES / TICKS / BRACKETS — 规则线语法
+   ============================================================ */
+
+.ark-rule-h { height: var(--ark-rule); background: var(--ark-line); border: 0; margin: 0; }
+.ark-rule-v { width: var(--ark-rule); background: var(--ark-line); }
+
+/* 刻度尺：短刻度 12px 周期 + 每 64px 一根长刻度 */
+.ark-ruler {
+  height: 7px;
+  background:
+    repeating-linear-gradient(90deg,
+      var(--ark-line) 0, var(--ark-line) 1px,
+      transparent 1px, transparent 64px),
+    repeating-linear-gradient(90deg,
+      var(--ark-line-strong) 0, var(--ark-line-strong) 1px,
+      transparent 1px, transparent 12px);
+  background-position: bottom left;
+  background-repeat: repeat-x;
+  background-size: 100% 7px, 100% 4px;
+  background-position: 0 0, 0 3px;
+  opacity: 0.9;
+}
+
+/* 方形角标：舞台四角括号 */
+.ark-brackets { position: relative; }
+.ark-brackets::before,
+.ark-brackets::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+.ark-brackets::before {
+  top: -1px; left: -1px;
+  border-top: 1px solid var(--ark-signal);
+  border-left: 1px solid var(--ark-signal);
+}
+.ark-brackets::after {
+  bottom: -1px; right: -1px;
+  border-bottom: 1px solid var(--ark-signal);
+  border-right: 1px solid var(--ark-signal);
+}
+
+/* 斜向切口（45°）容器 */
+.ark-cut-tr { clip-path: var(--ark-cut-tr); }
+.ark-cut-bl { clip-path: var(--ark-cut-bl); }
+
+/* ============================================================
+   CONTROLS — 方形控件 / 切角按钮
+   ============================================================ */
+
+.ark-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--ark-target);
+  padding: 0 18px;
+  border: 1px solid var(--ark-line-strong);
+  background: transparent;
+  color: var(--ark-paper);
+  font-family: var(--ark-font-cjk);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  clip-path: var(--ark-cut-tr);
+  transition:
+    background var(--ark-motion-direct) var(--ark-ease),
+    border-color var(--ark-motion-direct) var(--ark-ease),
+    color var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-btn:hover { background: var(--ark-paper-wash); border-color: var(--ark-paper); }
+.ark-btn:active { transform: translateY(1px); }
+
+/* 主操作：信号色描边 + 信号字 */
+.ark-btn--primary {
+  border-color: var(--ark-signal);
+  color: var(--ark-signal);
+  font-weight: 600;
+}
+.ark-btn--primary:hover { background: var(--ark-signal-wash); border-color: var(--ark-signal); }
+
+/* 实心信号按钮：仅用于每屏唯一最高优先动作 */
+.ark-btn--solid {
+  background: var(--ark-signal);
+  border-color: var(--ark-signal);
+  color: var(--ark-ink);
+  font-weight: 600;
+}
+.ark-btn--solid:hover { background: #5adfff; border-color: #5adfff; }
+
+.ark-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 模式芯片（分段控件） */
+.ark-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--ark-line);
+  color: var(--ark-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  transition:
+    color var(--ark-motion-direct) var(--ark-ease),
+    border-color var(--ark-motion-direct) var(--ark-ease),
+    background var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-chip:hover { color: var(--ark-paper); border-color: var(--ark-line-strong); }
+.ark-chip[aria-pressed="true"],
+.ark-chip.is-active {
+  color: var(--ark-signal);
+  border-color: var(--ark-signal);
+  background: var(--ark-signal-wash);
+}
+
+/* 输入控件：方角 + 左信号刻线 */
+.ark-input {
+  width: 100%;
+  min-height: var(--ark-target);
+  padding: 8px 12px;
+  background: var(--ark-ink-2);
+  border: 1px solid var(--ark-line);
+  border-left: 2px solid var(--ark-faint);
+  color: var(--ark-paper);
+  font-family: var(--ark-font-mono);
+  font-size: 12.5px;
+  transition:
+    border-color var(--ark-motion-direct) var(--ark-ease),
+    background var(--ark-motion-direct) var(--ark-ease);
+}
+.ark-input::placeholder { color: var(--ark-faint); }
+.ark-input:hover { border-color: var(--ark-line-strong); }
+.ark-input:focus {
+  outline: none;
+  border-color: var(--ark-signal);
+  border-left-color: var(--ark-signal);
+  background: var(--ark-ink-3);
+}
+textarea.ark-input { font-family: var(--ark-font-cjk); line-height: 1.6; resize: vertical; }
+
+.ark-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+
+/* ============================================================
+   MOTION — 仪表化动效（配合 prefers-reduced-motion）
+   ============================================================ */
+
+/* 掩码侧滑揭示 */
+@keyframes ark-reveal-x {
+  from { clip-path: inset(0 100% 0 0); transform: translateX(-12px); }
+  to   { clip-path: inset(0 0 0 0); transform: none; }
+}
+/* 自下而上揭示（面板入场） */
+@keyframes ark-reveal-y {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(10px); opacity: 0.001; }
+  to   { clip-path: inset(0 0 0 0); transform: none; opacity: 1; }
+}
+/* 信号脉冲：方形扩散环，不发光 */
+@keyframes ark-pulse-square {
+  0%   { transform: scale(1); opacity: 0.9; }
+  70%  { transform: scale(1.85); opacity: 0; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+/* 状态点呼吸 */
+@keyframes ark-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.ark-anim-reveal-x { animation: ark-reveal-x var(--ark-motion-reveal) var(--ark-ease) both; }
+.ark-anim-reveal-y { animation: ark-reveal-y var(--ark-motion-reveal) var(--ark-ease-out) both; }
+
+/* 减动效：提供同等信息量的静态构成 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
